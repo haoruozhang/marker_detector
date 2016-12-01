@@ -16,6 +16,7 @@ find_package(OpenGL REQUIRED )
 find_package(GLUT REQUIRED)
 
 include_directories(${catkin_INCLUDE_DIRS})
+include_directories("src/${PROJECT_NAME}/include")
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${OpenGL_INCLUDE_DIR})
 include_directories(${GLUT_INCLUDE_DIRS})
