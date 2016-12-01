@@ -1,5 +1,5 @@
 /******************************************************************************
- Name        : marker_detector
+ Name        : marker_main_node
  Author      : Haoruo Zhang
  E-mail      : haoruozhang[at]foxmail.com
  Copyright   : BSD
@@ -12,7 +12,7 @@
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
-#include <objrecog_msgs/rgbd_image.h>
+#include <rgbd_srvs/rgbd_image.h>
 #include <tf/LinearMath/Matrix3x3.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <tf/LinearMath/Vector3.h>
@@ -65,10 +65,10 @@ Mat_<float>  distCoeff;
 
 //camera_factor
 const double camera_factor = 1;
-const double camera_cx = 319.5;//325.5//315.5//319.5
-const double camera_cy = 239.5;//253.5//233.5//239.5
-const double camera_fx = 525.0;//518.0//570.3422
-const double camera_fy = 525.0;//519.0
+const double camera_cx = 319.5;
+const double camera_cy = 239.5;
+const double camera_fx = 525.0;
+const double camera_fy = 525.0;
 
 Mat rgb_image;
 
@@ -182,7 +182,7 @@ void readCameraParameter1()
     camMatrix(0,0) = camera_fx;  
     camMatrix(1,1) = camera_fy;  
     camMatrix(0,2) = camera_cx; //640  
-    camMatrix(1,2) = camera_cy; //480,?????????  
+    camMatrix(1,2) = camera_cy; //480  
   
     for (int i=0; i<4; i++)  
         distCoeff(i,0) = 0;
@@ -221,7 +221,7 @@ void setMarker(const vector<Marker>& detectedMarkers)
 {  
     m_detectedMarkers = detectedMarkers;  
 }  
-void LightInit2(void)
+void LightInit(void)
 {
 	//glEnable(GL_DEPTH_TEST);
 	glEnable(GL_COLOR_MATERIAL);
@@ -236,11 +236,6 @@ void LightInit2(void)
 	glLightfv(GL_LIGHT0,GL_SPECULAR,specular);
 	glLightfv(GL_LIGHT0,GL_POSITION,lightPos);
 	glEnable(GL_LIGHT0);
-	//glColorMaterial(GL_FRONT,GL_AMBIENT_AND_DIFFUSE);
-	//glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
-	//glMateriali(GL_FRONT,GL_SHININESS,128);
-	//glClearColor(0.0f,0.0f,0.0f,1.0f);
-	//glColor4f(0.75,0.75,0.75,1.0);
 	glShadeModel(GL_FLAT);
 } 
 void display(void)  
@@ -349,8 +344,8 @@ int main(int argc, char** argv)
 {
       ros::init(argc, argv, "marker_main_node");
       ros::NodeHandle nh;
-      ros::ServiceClient client = nh.serviceClient<objrecog_msgs::rgbd_image>("get_image");
-      objrecog_msgs::rgbd_image srv;
+      ros::ServiceClient client = nh.serviceClient<rgbd_srvs::rgbd_image>("marker_get_image");
+      rgbd_srvs::rgbd_image srv;
       srv.request.start = true;
       sensor_msgs::Image msg_rgb;
 
@@ -372,7 +367,7 @@ int main(int argc, char** argv)
       glutInitWindowPosition(100,100);  
       glutInitWindowSize(imagewidth,imageheight);
       glutCreateWindow("test.bmp");
-      LightInit2(); 
+      LightInit(); 
       glutDisplayFunc(&display);
       glutLeaveMainLoop();
 
@@ -405,12 +400,11 @@ int main(int argc, char** argv)
 
             transform_b = getcorrecttf(glMatrix);
 
-
-             br.sendTransform(tf::StampedTransform(transform_b, ros::Time::now(), "camera_rgb_optical_frame", "marker_frame"));
+            br.sendTransform(tf::StampedTransform(transform_b, ros::Time::now(), "camera_rgb_optical_frame", "marker_frame"));
           }
           else
           {
-            ROS_ERROR("Failed to call service get_image");
+            ROS_ERROR("Failed to call service marker_get_image");
           }
        ros::spinOnce();
        loop_rate.sleep();

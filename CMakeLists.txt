@@ -26,8 +26,15 @@ link_directories(${OpenGL_LIBRARY_DIR})
 link_directories(${GLUT_LIBRARY_DIRS})
 
 add_executable(marker_main_node src/marker_main_node.cpp src/MarkerDetector.cpp src/GeometryTypes.cpp src/Marker.cpp)
+add_executable(marker_get_image src/marker_get_image.cpp)
 
 target_link_libraries(marker_main_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+   ${OPENGL_LIBRARIES}
+   ${GLUT_LIBRARY}
+ )
+target_link_libraries(marker_get_image
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
